@@ -12,16 +12,15 @@ class LoggerServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $container = container();
-        $container->set('logger.writer', factory(function () {
+        $this->container->set('logger.writer', factory(function () {
             $log = new Logger('application');
             $log->pushHandler(new StreamHandler(storage_path('/logs/' . date('Y-m-d') . '.log')));
 
             return $log;
         }));
 
-        $container->set(LoggerInterface::class, get('logger.writer'));
-        $container->set(Logger::class, get('logger.writer'));
+        $this->container->set(LoggerInterface::class, get('logger.writer'));
+        $this->container->set(Logger::class, get('logger.writer'));
     }
 
 }

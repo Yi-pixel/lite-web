@@ -24,7 +24,7 @@ class ConfigServiceProvider extends ServiceProvider
             $data[$key] = require $file;
         }
 
-        container()->set('config', new Data($data));
+        $this->container->set('config', new Data($data));
     }
 
     private function getFiles(): array
