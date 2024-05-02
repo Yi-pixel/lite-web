@@ -11,6 +11,7 @@ class ApplicationContainer extends Container
 {
     private static self $instance;
     private static array $providers = [];
+    private bool $booted = false;
 
     public function __construct(MutableDefinitionSource|array $definitions = [], ProxyFactory $proxyFactory = null, ContainerInterface $wrapperContainer = null)
     {
@@ -18,6 +19,21 @@ class ApplicationContainer extends Container
 
 
         self::$instance = $this;
+    }
+
+    public function bootstrap(): void
+    {
+        if ($this->booted) {
+            return;
+        }
+
+        $this->initializeServiceProviders();
+
+        $this->registerServiceProvider();
+
+        $this->bootServiceProvider();
+
+        $this->booted = true;
     }
 
     /**
@@ -28,27 +44,27 @@ class ApplicationContainer extends Container
         return self::$instance;
     }
 
-    public static function registerServiceProvider(ContainerInterface $container): void
+    public function registerServiceProvider(): void
     {
         foreach (self::$providers as $provider) {
-            $container->call([$provider, 'register']);
+            $this->call([$provider, 'register']);
         }
     }
 
-    public static function initializeServiceProviders(ContainerInterface $container)
+    public function initializeServiceProviders(): array
     {
-        $providers = require APP_BASE_PATH . '/boostrap/providers.php';
+        $providers = require APP_BASE_PATH . '/bootstrap/providers.php';
         foreach ($providers as $provider) {
-            self::$providers[$provider] ??= new $provider($container);
+            self::$providers[$provider] ??= new $provider($this);
         }
 
         return self::$providers;
     }
 
-    public static function bootServiceProvier(ContainerInterface $container)
+    public function bootServiceProvider(): void
     {
         foreach (self::$providers as $provider) {
-            $container->call([$provider, 'boot']);
+            $this->call([$provider, 'boot']);
         }
     }
 }

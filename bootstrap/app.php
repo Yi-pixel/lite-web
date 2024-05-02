@@ -21,11 +21,10 @@ $container = (new ContainerBuilder(ApplicationContainer::class))
     ->addDefinitions(APP_BASE_PATH . '/config/definitions.php')
     ->useAttributes(true)
     ->build();
+$container->bootstrap();
 
 $app = Bridge::create($container);
 
-$configProvider = $container->get(ConfigServiceProvider::class);
-$configProvider->load();
 
 require APP_BASE_PATH . '/routes/web.php';
 
